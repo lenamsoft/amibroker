@@ -1,0 +1,160 @@
+/*  Calculations to check how old symbols last price print.  Can assign to 5 watchlists showing "levels/Youth of Data
+	*		Ver1 2014
+	*		By Sean ONeill	
+	*/
+	
+// Set variables and Click Explore
+If( Status( "action" ) == actionExplore )
+{
+	ifSettingUpWatchlists 		= True;	// Whether you want to create watchlists for symbol age
+	showDataAgeInDaysColumn 	= True;// To see the symbols last price age in days on a explorer column
+	areWeClearingWatchlistFirst = True; // Removes symbol from watchlists we are using before assignment.  Keeps only one age assignment at a time.
+    startWatchListAtNum 		= 50;	// Watchlists will start at this watchliost number
+    numberOfThresholds			= 3;	// How many different age buckets to make.
+    
+	if( ifSettingUpWatchlists )
+	{
+		// Set whatever watchlists thresholds for symbols age (in days)
+		firstAgeThreshold 			= 60;  // Newer than days.  Don't set it to low, remember weekends and holidays etc.
+		secondAgeThreshold 			= 120; // Newer than days.
+		thirdAgeThreshold 			= 240; // Newer than days.
+		forthAgeThreshold 			= 480; // Newer than days, then anything older than this.
+		
+		// Set older than avriable based on how many thresholds we use
+		if(numberOfThresholds == 1)
+			olderThanLastAgeThreshold 	= firstAgeThreshold;
+		else if(numberOfThresholds == 2)
+			olderThanLastAgeThreshold 	= secondAgeThreshold;
+		else if(numberOfThresholds == 3)
+			olderThanLastAgeThreshold 	= thirdAgeThreshold;
+		else if(numberOfThresholds == 4)
+			olderThanLastAgeThreshold 	= forthAgeThreshold;
+			
+			
+		if( numberOfThresholds >= 1)
+			firstThresholdWLNum 		= startWatchListAtNum;
+		if( numberOfThresholds >= 2 )
+			secondThresholdWLNum 		= firstThresholdWLNum + 1;
+		if( numberOfThresholds >= 3 )
+			thirdThresholdWLNum 		= firstThresholdWLNum + 2;
+		if( numberOfThresholds >= 4 )
+			forthThresholdWLNum 		= firstThresholdWLNum + 3;
+			
+		olderThanLastAgeThresholdWLNum = firstThresholdWLNum + numberOfThresholds;
+
+		// Build watch list names
+		if( numberOfThresholds >= 1 )
+			firstAgeThresholdStr = "Data Newer Than " + NumToStr( firstAgeThreshold, 1.0, False, False ) + " Days" + " (" + NumToStr( firstThresholdWLNum, 1.0, False, False ) + ")";
+		if( numberOfThresholds >= 2 )
+			secondAgeThresholdStr = "Data Newer Than " + NumToStr( secondAgeThreshold, 1.0, False, False ) + " Days" + " (" + NumToStr( secondThresholdWLNum, 1.0, False, False ) + ")";
+		if( numberOfThresholds >= 3 )
+			thirdAgeThresholdStr = "Data Newer Than " + NumToStr( thirdAgeThreshold, 1.0, False, False ) + " days" + " (" + NumToStr( thirdThresholdWLNum, 1.0, False, False ) + ")";
+		if( numberOfThresholds >= 4 )
+			forthAgeThresholdStr = "Data Newer Than " + NumToStr( forthAgeThreshold, 1.0, False, False ) + " days" + " (" + NumToStr( forthThresholdWLNum, 1.0, False, False ) + ")";
+			
+		ageEverythingElse = "Data Older Than " + NumToStr( olderThanLastAgeThreshold, 1.0, False, False ) + " days" + " (" + NumToStr( olderThanLastAgeThresholdWLNum, 1.0, False, False ) + ")";
+
+		// Set watch list names
+		if( numberOfThresholds >= 1 )
+			wlFirstAgeThresholdName = firstAgeThresholdStr;
+		if( numberOfThresholds >= 2 )
+			wlSecondAgeThresholdName = secondAgeThresholdStr;
+		if( numberOfThresholds >= 3 )
+			wlThirdAgeThresholdName = thirdAgeThresholdStr;
+		if( numberOfThresholds >= 4 )
+			wlForthAgeThresholdName = forthAgeThresholdStr;
+			
+		wlAgeEverythingElseName = ageEverythingElse;
+
+		// Clear the symbols from being in any of our defined lists before we assign them, this will keep
+		// them moving as they become in-active, off the board or delisted symbols
+		if( areWeClearingWatchlistFirst )
+		{
+			if( numberOfThresholds >= 1 )
+				CategoryRemoveSymbol( Name(), categoryWatchlist, firstThresholdWLNum );
+			if( numberOfThresholds >= 2 )
+				CategoryRemoveSymbol( Name(), categoryWatchlist, secondThresholdWLNum );
+			if( numberOfThresholds >= 3 )
+				CategoryRemoveSymbol( Name(), categoryWatchlist, thirdThresholdWLNum );
+			if( numberOfThresholds >= 4 )
+				CategoryRemoveSymbol( Name(), categoryWatchlist, forthThresholdWLNum );
+		}
+			
+		CategoryRemoveSymbol( Name(), categoryWatchlist, olderThanLastAgeThresholdWLNum );
+
+		//  If watchlist(s) don't exist create them
+		if( numberOfThresholds >= 1 AND CategoryGetName( categoryWatchlist, firstThresholdWLNum ) != wlFirstAgeThresholdName )
+		{
+			CategorySetName( wlFirstAgeThresholdName, categoryWatchlist, firstThresholdWLNum );
+		}
+		if( numberOfThresholds >= 2 AND CategoryGetName( categoryWatchlist, secondThresholdWLNum ) != wlSecondAgeThresholdName )
+		{
+			CategorySetName( wlSecondAgeThresholdName, categoryWatchlist, secondThresholdWLNum );
+		}
+		if( numberOfThresholds >= 3 AND CategoryGetName( categoryWatchlist, thirdThresholdWLNum ) != wlThirdAgeThresholdName )
+		{
+			CategorySetName( wlThirdAgeThresholdName, categoryWatchlist, thirdThresholdWLNum );
+		}
+		if( numberOfThresholds >= 4 AND CategoryGetName( categoryWatchlist, forthThresholdWLNum ) != wlForthAgeThresholdName )
+		{
+			CategorySetName( wlForthAgeThresholdName, categoryWatchlist, forthThresholdWLNum );
+		}
+		
+		if( CategoryGetName( categoryWatchlist, olderThanLastAgeThresholdWLNum ) != wlAgeEverythingElseName )
+		{
+			CategorySetName( wlAgeEverythingElseName, categoryWatchlist, olderThanLastAgeThresholdWLNum );
+		}
+	}
+    
+    // Calculation for last data age, i.e., how old last price date and time was.
+    lastSymbolDateNum = DateTimeConvert( format = 2, DateNum() );
+    dateNowNum = DateTimeConvert( format = 2, Now( format = 3 ) );
+    SecsSinceUpdateNum = DateTimeDiff( dateNowNum, lastSymbolDateNum );
+    DaysSinceUpdateNum = SecsSinceUpdateNum / 86400;
+    lastSymbolDateStr = NumToStr( lastSymbolDateNum, 1.0, true );
+    dateNowStr = NumToStr( dateNowNum, 1.0, true );
+    SecsSinceUpdateStr = NumToStr( SecsSinceUpdateNum, 1.0, true );
+    DaysSinceUpdateStr = NumToStr( DaysSinceUpdateNum, 1.0, true );
+    // DaysSinceUpdateNum is an array so...
+    dataAge = LastValue( DaysSinceUpdateNum );
+    
+    // Assign symbol to age threshold watchlist
+    if( ifSettingUpWatchlists )
+	{
+		// Check age of last data for symbol then assign to watchlist thresholds
+		if( numberOfThresholds >= 1 AND dataAge <= firstAgeThreshold )
+		{
+			CategoryAddSymbol( Name(), categoryWatchlist, firstThresholdWLNum );
+		}
+		if( numberOfThresholds >= 2 and	dataAge <= secondAgeThreshold  )
+		{
+			CategoryAddSymbol( Name(), categoryWatchlist, secondThresholdWLNum );
+		}
+		if( numberOfThresholds >= 3 AND dataAge <= thirdAgeThreshold )
+		{
+			CategoryAddSymbol( Name(), categoryWatchlist, thirdThresholdWLNum );
+		}    
+		if( numberOfThresholds >= 4 AND dataAge <= forthAgeThreshold )
+		{
+			CategoryAddSymbol( Name(), categoryWatchlist, forthThresholdWLNum );
+		}
+		
+		if( dataAge > forthAgeThreshold )
+		{
+			//CategoryAddSymbol( Name(), categoryWatchlist, olderThanLastAgeThresholdWLNum );
+		}
+	}
+	
+	//Show values in Explorer columns to debug
+	AddTextColumn( lastSymbolDateStr, "Last Symbol Date Num");
+	AddTextColumn( dateNowStr, "DateNow Num");
+	AddTextColumn( SecsSinceUpdateStr, "Seconds Since Updated");
+	
+	// Show symbol Data age in days
+	if( showDataAgeInDaysColumn )
+	{
+		AddTextColumn( DaysSinceUpdateStr, "Days Since Updated");
+	}
+	
+	Filter = True;
+}

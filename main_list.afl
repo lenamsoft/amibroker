@@ -1,0 +1,32 @@
+filter = MA(Volume, 5) > 100000 AND strlen( name() ) == 3 AND Close > 1;
+
+
+AddColumn( Close, "Close" );
+AddColumn( Volume, "KL" , 1);
+AddColumn( MA(Volume, 5), "KL tb" , 1);
+
+AddtextColumn( Name() , "name" );
+
+tb = LastValue(MA(Volume, 5) );
+
+
+_TRACEF(name() + "Close last value is %g", tb );
+
+
+// Calculation for last data age, i.e., how old last price date and time was.
+lastSymbolDateNum = DateTimeConvert( format = 2, DateNum() );
+
+
+
+dateNowNum = DateTimeConvert( format = 2, Now( format = 3 ) );
+
+SecsSinceUpdateNum = DateTimeDiff( dateNowNum, lastSymbolDateNum );
+    DaysSinceUpdateNum = SecsSinceUpdateNum / 86400;
+    DaysSinceUpdateStr = NumToStr( DaysSinceUpdateNum, 1.0, true );
+    
+AddtextColumn( DaysSinceUpdateStr , "day" );
+
+if( tb > 100000 AND strlen( name() ) == 3 AND  LastValue(Close) >1) {
+
+	if(LastValue(DaysSinceUpdateNum)< 10) CategoryAddSymbol( name() , categoryWatchlist, 0 ); 
+}
