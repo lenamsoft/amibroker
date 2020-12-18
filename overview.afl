@@ -1,0 +1,10 @@
+Filter = 1;
+AddColumn( Ref(C,-1), "Open" );
+AddColumn( Close, "Close price", 1.2 );
+AddColumn( SelectedValue( ROC( C, 1 )), "%" );
+AddColumn( Low, "Low" ); 
+AddColumn( High, "High" ); 
+
+
+
+addcolumn( V, "KL", 1 );
