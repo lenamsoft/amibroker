@@ -19,3 +19,13 @@ AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault, MA_Bg_Color);
 
 AddColumn( V, "KL", 1 );
 AddColumn( RSI( 14 ), "RSI", 1 );
+
+EMACALC = EMA(C, 10);
+
+cond1 = Close > EMACALC AND MACD() > Signal();
+cond2 = Close > EMACALC AND MACD() < Signal() OR Close < EMACALC AND MACD() > Signal();
+cond3 = Close < EMACALC AND MACD() < Signal();
+
+if(LastValue(cond1)) addtextcolumn("UPTREND", "Trend", 1.2, colorDefault, colorGreen ); 
+if(LastValue(cond2)) addtextcolumn("-", "Trend"); 
+if(LastValue(cond3)) addtextcolumn("DOWNTREND", "Trend", 1.2, colorDefault, colorRed );
