@@ -7,4 +7,15 @@ AddColumn( High, "High" );
 
 
 
-addcolumn( V, "KL", 1 );
+MA_Bg_Color = IIf( ma(CLOSE, 5 ) <= Close, colorDefault, colorRed );
+
+
+AddColumn( ma(CLOSE, 5 ) , "MA 5", 1.2 ,  colorDefault, MA_Bg_Color);
+
+MA_Bg_Color = IIf( ma(CLOSE, 15 ) <= Close, colorDefault, colorRed );
+
+AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault, MA_Bg_Color);
+
+
+AddColumn( V, "KL", 1 );
+AddColumn( RSI( 14 ), "RSI", 1 );
