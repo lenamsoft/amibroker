@@ -1,14 +1,17 @@
 Filter = 1;
 AddColumn( Ref(C,-1), "Open" );
 AddColumn( Close, "Close price", 1.2 );
-AddColumn( SelectedValue( ROC( C, 1 )), "%" );
+textcolor = IIf( SelectedValue( ROC( C, 1 )) >=0 , colorGreen , IIf( SelectedValue( ROC( C, 1 )) <=0 , colorRed , colorDefault ) );
+
+ 
+
+AddColumn( SelectedValue( ROC( C, 1 )), "%", 1.2 , colorDefault, textcolor );
 AddColumn( Low, "Low" ); 
 AddColumn( High, "High" ); 
 
 
 
 MA_Bg_Color = IIf( ma(CLOSE, 5 ) <= Close, colorDefault, colorRed );
-
 
 AddColumn( ma(CLOSE, 5 ) , "MA 5", 1.2 ,  colorDefault, MA_Bg_Color);
 
