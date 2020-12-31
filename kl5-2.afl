@@ -1,0 +1,57 @@
+KLTB_2days = (V + Ref(V,-1) ) / 2;
+
+KLTB_5days = (Ref(V,-2) + Ref(V,-3) + Ref(V,-4) + Ref(V,-5) + Ref(V,-6) ) / 5;
+
+B = KLTB_2days > KLTB_5days * 2 && KLTB_5days>100000;
+
+V_previous_day = Ref(V,-1);
+TB_day = V > Ref(V,-2)*1.1 && V > Ref(V,-3)*1.1 && V >Ref(V,-4)*1.1 && V >Ref(V,-5)*1.1 && V >Ref(V,-6)*1.1;
+TB_day2 = V_previous_day > Ref(V,-2)*1.1 &&  V_previous_day > Ref(V,-3)*1.1 && V_previous_day >Ref(V,-4)*1.1 && V_previous_day >Ref(V,-5)*1.1 && V_previous_day >Ref(V,-6)*1.1;
+
+EMACALC = EMA(C, 10);
+
+cond1 = Close > EMACALC AND MACD() > Signal();
+cond2 = Close > EMACALC AND MACD() < Signal() OR Close < EMACALC AND MACD() > Signal();
+cond3 = Close < EMA(C, 10) AND MACD() < Signal();
+
+
+trend_text = WriteIF(cond1 , "c1", "c3");
+trend_text = WriteIF( cond2 , "c2", trend_text);
+trend_text = WriteIF( cond3 , "c3", trend_text);
+
+
+
+Filter = B && TB_day && TB_day2 && (cond1 || cond2) && C>=Ref(C,-1);
+
+//Filter = Status("LastBarInRange") AND KLTB_2days > KLTB_5days * 2;
+AddColumn( Ref(C,-1), "Open" , 1.2);
+
+AddColumn( Close, "Close price", 1.2 );
+
+//textcolor = IIf( SelectedValue( ROC( C, 1 )) >=0 , colorGreen , IIf( SelectedValue( ROC( C, 1 )) <=0 , colorRed , colorDefault ) );
+
+//AddColumn( SelectedValue( ROC( C, 1 )), "%", 1.2 , colorDefault, textcolor );
+//AddColumn( Low, "Low" ); 
+//AddColumn( High, "High" ); 
+
+AddColumn( Ref(C,3), "T3 Price", 1.2 );
+AddColumn( (Ref(C,3)-C) / C * 100, "% T3 Price", 1.2 );
+
+AddColumn( (Ref(C,7)-C) / C * 100, "% T7 Price", 1.2 );
+
+current_price = LastValue(C);
+
+AddColumn( LastValue(C), "Current Price", 1.2 );
+AddColumn( (current_price-C) / C * 100, "% Price", 1.2 );
+
+
+bgcolor = IIf(KLTB_2days > KLTB_5days * 1.2, colorGreen , colorDefault );
+
+AddColumn( KLTB_2days, "KLTB_2days" , 1, colorDefault, bgcolor);
+AddColumn( KLTB_5days, "KLTB_5days" , 1);
+
+AddColumn( KLTB_2days/KLTB_5days, "heso" , 1.2);
+
+if(trend_text == "c1") addtextcolumn("UPTREND", "Trend", 1.2, colorDefault, colorGreen ); 
+if(trend_text == "c2") addtextcolumn("-", "Trend"); 
+if(trend_text == "c3") addtextcolumn("DOWNTREND", "Trend", 1.2, colorDefault, colorRed );

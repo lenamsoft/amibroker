@@ -1,0 +1,20 @@
+
+Diff = cross( close, ema(close,9) ); 
+Diff2 = cross( ema(close,9), close ); 
+Filter = Status("LastBarInRange") && (Diff || Diff2) ;
+
+
+
+
+AddColumn( Ref(C,-1), "Open" );
+AddColumn( Close, "Close price", 1.2 );
+textcolor = IIf( SelectedValue( ROC( C, 1 )) >=0 , colorGreen , IIf( SelectedValue( ROC( C, 1 )) <=0 , colorRed , colorDefault ) );
+AddColumn( SelectedValue( ROC( C, 1 )), "%", 1.2 , colorDefault, textcolor );
+
+
+AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault);
+
+Last_close = SelectedValue(ROC( C, 1 ));
+
+Diff = C-MA(C, 15);
+AddColumn( Diff , "MA different", 1.2 , colorDefault);

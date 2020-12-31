@@ -1,9 +1,7 @@
-Filter = 1;
+Filter = Status("LastBarInRange");
 AddColumn( Ref(C,-1), "Open" );
 AddColumn( Close, "Close price", 1.2 );
 textcolor = IIf( SelectedValue( ROC( C, 1 )) >=0 , colorGreen , IIf( SelectedValue( ROC( C, 1 )) <=0 , colorRed , colorDefault ) );
-
- 
 
 AddColumn( SelectedValue( ROC( C, 1 )), "%", 1.2 , colorDefault, textcolor );
 AddColumn( Low, "Low" ); 
@@ -19,9 +17,20 @@ MA_Bg_Color = IIf( ma(CLOSE, 15 ) <= Close, colorDefault, colorRed );
 
 AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault, MA_Bg_Color);
 
+diff =  (C- MA(CLOSE, 15 ))/MA(CLOSE, 15 )*100;
+
+AddColumn( diff , "MA 15 - Diff", 1.2 , colorDefault, MA_Bg_Color);
 
 AddColumn( V, "KL", 1 );
 AddColumn( RSI( 14 ), "RSI", 1 );
+
+textcolor = IIf( C >= HHV( C, 10) , colorGreen ,  colorDefault);
+
+AddColumn( HHV( C, 10), "Can tren", 1.2, textcolor );
+
+textcolor = IIf( C <= LLV( C, 10) , colorRED,  colorDefault);
+AddColumn( LLV( C, 10), "Can duoi", 1.2, textcolor );
+
 
 EMACALC = EMA(C, 10);
 
