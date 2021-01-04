@@ -1,0 +1,23 @@
+
+// Phan 1: khai bao bien
+MA200 = MA(C,200); // duongMa200
+VolTB = MA(V,10); // Vol trung binh 10 phien
+
+
+
+// Phan 2:  Dieu Kien
+DK1 = C>Ref(C,-1) AND V >= 1.5*MA(V,10) AND C<1.03*Ref(C,-1);
+
+DK2	=   (C-L)>0.8*(H-L) AND C*V>500000;
+
+DK3= V>Ref(V,-1) AND V>Ref(V,-2)AND V>Ref(V,-3)AND V>Ref(V,-4)AND V>Ref(V,-5)AND V>Ref(V,-6)AND V>Ref(V,-7)AND V>Ref(V,-8)AND V>Ref(V,-9)AND V>Ref(V,-10);
+Buy = DK1  AND DK2 AND DK3;
+
+// Phan 3: Ham Loc
+
+   
+Filter = Buy;
+//AddColumn  (MA(V*C,15),"GiaTri",1.2);
+AddColumn (C,"GiaDongCua",1.2);
+AddColumn((Ref(C,3)/C - 1)*100,"MotTuan",1.2);
+// co phieu break MA200 va voi volume dot bien
