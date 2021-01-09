@@ -13,7 +13,7 @@ AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault, MA_Bg_Color);
 
 diff =  (C- MA(CLOSE, 15 ))/MA(CLOSE, 15 )*100;
 
-AddColumn( diff , "MA 15 - Diff", 1.2 , colorDefault, MA_Bg_Color);
+AddColumn( diff , "MA 15 - % Diff", 1.2 , colorDefault, MA_Bg_Color);
 
 AddColumn( V, "KL", 1 );
 
@@ -54,3 +54,20 @@ cond3 = Close < EMACALC AND MACD() < Signal();
 if(LastValue(cond1)) addtextcolumn("UPTREND", "Trend", 1.2, colorDefault, colorGreen ); 
 if(LastValue(cond2)) addtextcolumn("-", "Trend"); 
 if(LastValue(cond3)) addtextcolumn("DOWNTREND", "Trend", 1.2, colorDefault, colorRed );
+
+
+Buy = Cross( MACD(), Signal() );
+Sell = Cross( Signal(), MACD() );
+
+MACD_cross_text = "";
+MACD_cross_bg = colorDefault;
+if(LastValue(Buy))  {
+	MACD_cross_text = "B";
+	MACD_cross_bg = colorGreen;
+}
+if(LastValue(Sell))  {
+	MACD_cross_text = "S";
+	MACD_cross_bg = colorRed;
+}
+
+AddTExtColumn( MACD_cross_text , "MACD Cross", 1.2 , colorDefault, MACD_cross_bg );
