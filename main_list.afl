@@ -26,7 +26,7 @@ SecsSinceUpdateNum = DateTimeDiff( dateNowNum, lastSymbolDateNum );
     
 AddtextColumn( DaysSinceUpdateStr , "day" );
 
-if( tb > 100000 AND strlen( name() ) == 3 AND  LastValue(Close) >1) {
+if( tb > 100000 AND strlen( name() ) == 3 AND  LastValue(Close) >1 AND  LastValue(V) > 50000) {
 
 	if(LastValue(DaysSinceUpdateNum)< 10) CategoryAddSymbol( name() , categoryWatchlist, 0 ); 
 }

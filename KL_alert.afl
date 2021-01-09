@@ -1,0 +1,31 @@
+
+function checkTradeTime() {
+	tmp = (NOW(4) > 90000) AND (NOW(4) < 150000);
+	return tmp;
+}
+
+curent_time = NOW(4);
+V_highest = HHV(V, 10);
+
+
+
+Buy =  V > V_highest/2;
+
+Filter =  Buy;
+
+
+
+
+AddColumn (C,"Gia",1.2);
+AddColumn((C/Ref(C,-1) - 1)*100,"%", 1.2);
+
+
+AddColumn (V,"KL",1);
+AddColumn (V_highest ,"KL caonhat",1);
+
+
+
+
+//AddColumn( mytimenum, "Current time"); 
+
+

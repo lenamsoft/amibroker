@@ -7,12 +7,6 @@ AddColumn( SelectedValue( ROC( C, 1 )), "%", 1.2 , colorDefault, textcolor );
 AddColumn( Low, "Low" ); 
 AddColumn( High, "High" ); 
 
-
-
-MA_Bg_Color = IIf( ma(CLOSE, 5 ) <= Close, colorDefault, colorRed );
-
-AddColumn( ma(CLOSE, 5 ) , "MA 5", 1.2 ,  colorDefault, MA_Bg_Color);
-
 MA_Bg_Color = IIf( ma(CLOSE, 15 ) <= Close, colorDefault, colorRed );
 
 AddColumn( ma(CLOSE, 15 ) , "MA 15", 1.2 , colorDefault, MA_Bg_Color);
@@ -22,6 +16,25 @@ diff =  (C- MA(CLOSE, 15 ))/MA(CLOSE, 15 )*100;
 AddColumn( diff , "MA 15 - Diff", 1.2 , colorDefault, MA_Bg_Color);
 
 AddColumn( V, "KL", 1 );
+
+Max_kl = HHV( V, 10);
+//AddColumn( Max_kl, "max KL 10 days", 1 );
+
+tile_kl = V/Max_kl * 100;
+kl_text = IIf( tile_kl >= 50, 1, 0 );
+
+if(LastValue(kl_text) == 1) {
+	AddColumn( LastValue(tile_kl), "%KL", 1.2 );
+}
+else {
+	AddtextColumn( "", "%KL", 1.2 );
+}
+
+
+
+
+
+
 AddColumn( RSI( 14 ), "RSI", 1 );
 
 textcolor = IIf( C >= HHV( C, 10) , colorGreen ,  colorDefault);
