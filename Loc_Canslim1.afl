@@ -1,0 +1,532 @@
+_SECTION_BEGIN("MA");
+P = ParamField("Price field",-1);
+Periods = Param("Periods", 30, 2, 300, 1, 10 );
+Plot( MA( P, Periods ), _DEFAULT_NAME(), ParamColor( "Color", colorCycle ), ParamStyle("Style") ); 
+_SECTION_END();
+
+_SECTION_BEGIN("Price");
+SetChartOptions(0,chartShowArrows|chartShowDates);
+_N(Title = StrFormat("{{NAME}} - {{INTERVAL}} {{DATE}} Open %g, Hi %g, Lo %g, Close %g (%.1f%%) {{VALUES}}", O, H, L, C, SelectedValue( ROC( C, 1 ) ) ));
+Plot( C, "Close", ParamColor("Color", colorBlack ), styleDots | ParamStyle("Style") | GetPriceStyle() ); 
+_SECTION_END();
+
+
+
+
+
+mua =  
+(C >= Ref(C,-1)
+AND C >= Ref(C,-2)
+AND C >= Ref(C,-3)
+AND C >= Ref(C,-4) 
+AND C>=MA(C,30)
+AND C>1.01*Ref(C,-1)
+AND HHV(C,5) >= HHV(C,15)
+AND Ref(C,-1)<1.04*Ref(C,-2)
+
+)
+
+
+
+
+;
+ 
+
+ban =  
+  
+    C <= Ref(L,-1)
+AND C <= Ref(L,-2)
+AND C <= Ref(L,-3)
+AND C <= Ref(L,-4)
+AND C <= Ref(L,-5)
+AND C <= Ref(L,-6)
+AND C <= Ref(L,-7)
+AND C <= Ref(L,-8)
+
+
+ ;
+
+
+
+
+
+ 
+Buy = ExRem(mua, ban);
+Sell = ExRem(ban, mua);
+
+PlotShapes(IIf(Buy,shapeUpArrow,shapeNone),colorBlue,0,Low,Offset=-10);
+PlotShapes(IIf(Sell,shapeDownArrow,shapeNone),colorRed,0,High,Offset=-10);
+
+
+
+;
+ban1= 
+(C <= Ref(L,-1)
+AND C <= Ref(L,-2)
+AND C <= Ref(L,-3)
+AND C <= Ref(L,-4))
+
+OR
+
+(C<=0.95*HHV(H,1))
+;
+Short = ExRem(ban1, mua) AND C*V>1000000;
+
+  Cover= 
+C > 1.02*Ref(H,-1) 
+AND C>=Ref(H,-2)
+AND (V >= 1.3*MA(V,50) OR V >= 1.3*MA(V,15))  
+AND C >= (H + L)/ 2 
+AND C > O
+AND C*V>=1000000
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+
+AND C>=5
+AND C>MA(C,30)
+AND C >= Ref(C,-2)
+AND C >= Ref(C,-3)
+AND C >= Ref(C,-4) 
+AND C >= Ref(C,-5)
+AND C <1.15*LLV(C,10)
+
+;
+
+
+
+PlotShapes(IIf(Short,shapeDownArrow,shapeNone),colorRed,0,High,Offset=-10);
+
+PlotShapes(IIf(Cover, shapeUpArrow,shapeNone),colorCustom12,0,Low,Offset=-10);    
+
+Filter = 
+
+//batday
+(C*V>=3000000
+AND C>=5
+AND (C-L)/L >=0.02
+AND C<MA(C,30)
+AND MA(V,15) >=100000
+AND C*V<1000000000
+AND HHV(H,20) >1.2*C
+AND Ref(RSI(14),-1) <=35
+AND LLV(V,50) >20000
+AND C <1.15*LLV(C,10)
+
+)
+OR 
+
+//tanggia
+(
+C*V>=3000000
+AND C>=3
+AND C> 1.01*Ref(C,-1)
+AND LLV(V,50) >30000
+AND C <1.25*LLV(C,10)
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-1)
+
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND Ref(C,-3)<=1.04*Ref(C,-2)
+
+)
+
+;
+
+Buy = 
+ (  C >= Ref(H,-1) 
+AND C >= Ref(H,-2) 
+AND C >= Ref(H,-3) 
+AND C >= Ref(H,-4)
+AND C>=5
+AND C>=O
+AND C*V>=3000000
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.2*LLV(C,10)
+AND V>Ref(V,-1)
+)
+OR
+(
+    C >= Ref(H,-1) 
+AND C >= Ref(H,-2) 
+AND C >= Ref(H,-3) 
+AND C >= Ref(H,-4)
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+
+AND C>=5
+AND C>=O
+AND C>=1.02*Ref(C,-1)
+AND C>=Ref(C,-2)
+AND V>=Ref(V,-1)
+AND V >= 1.3*MA(V,15) 
+AND C*V>=3000000
+
+
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(V,-1)>=100000
+AND C>=5
+AND C>1.3*LLV(L,50)
+AND C <=1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+
+OR 
+(
+C > 1.02*Ref(C,-1) 
+AND C>=Ref(C,-2)
+AND V >= 1.3*MA(V,15)  
+AND MA(V,15)>= 100000 
+AND MA(V,50)>= 100000 
+AND C> MA(C,15) 
+AND V>Ref(V,-1)
+AND C >= (H + L)/ 2 
+AND C > O
+AND C>=5
+AND C*V>=3000000
+AND C>1.3*LLV(L,50)
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND Ref(C,-3)<=1.04*Ref(C,-4)
+AND Ref(V,-1)>=30000
+AND Ref(V,-5)>=50000
+AND Ref(V,-10)>=50000
+AND Ref(V,-15)>=50000
+AND Ref(V,-20)>=50000
+AND C>= 0.8*HHV(C,60)
+AND C> 1.2*LLV(L,60)
+AND C <1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+OR
+(
+C > Ref(H,-1) 
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND C > Ref(H,-2) 
+AND C > Ref(H,-3) 
+AND C > Ref(H,-4)
+AND C>MA(C,15)
+AND Ref(C,-1)>MA(C,15)
+AND C>=O
+AND C>=5
+AND C>=1.02*Ref(C,-1)
+AND C*V>=3000000
+AND C>1.3*LLV(L,50)
+AND V >= 1.3*MA(V,15)
+AND V>=Ref(V,-1)
+AND Ref(V,-5)>=50000
+AND Ref(V,-10)>=50000
+AND Ref(V,-15)>=50000
+AND Ref(V,-20)>=50000
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND C <1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+
+
+OR
+(
+C > 1.02*Ref(C,-1) 
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND C>=Ref(C,-2)
+AND V >= 1.3*MA(V,15)
+AND V>=0.8*Ref(V,-1)
+AND MA(V,15)>= 50000 
+AND MA(V,50)>= 50000 
+AND C> MA(C,15) 
+AND C >= (H + L)/ 2 
+AND C > O
+AND C>=5
+AND C*V>=3000000
+
+AND C>1.3*LLV(L,50)
+AND Ref(C,-1)<=1.05*Ref(C,-2)
+AND Ref(V,-5)>=50000
+AND Ref(V,-10)>=50000
+AND Ref(V,-15)>=50000
+AND Ref(V,-20)>=50000
+AND C>= 0.8*HHV(C,60)
+AND C> 1.2*LLV(L,60)
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND C <1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+OR 
+( 
+C > Ref(H,-1) 
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+AND C > Ref(H,-2) 
+AND C > Ref(H,-3) 
+AND C > Ref(H,-4)
+AND C>MA(C,15)
+AND Ref(C,-1)>MA(C,15)
+AND C>=O
+AND C>=1.02*Ref(C,-1)
+AND V>=Ref(V,-1)
+AND C>5
+AND C*V>=3000000
+AND V >= 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+
+OR
+(C > 1.02*Ref(H,-1) 
+AND C>=Ref(H,-2)
+AND (V >= 1.3*MA(V,50) OR V >= 1.3*MA(V,15))  
+AND C >= (H + L)/ 2 
+AND C > O
+AND C*V>=1000000
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+
+AND C>=5
+AND C>MA(C,30)
+AND C >= Ref(C,-2)
+AND C >= Ref(C,-3)
+AND C >= Ref(C,-4) 
+AND C >= Ref(C,-5)
+AND Ref(V,-1) >=30000
+
+AND C <1.15*LLV(C,10)
+AND Ref(V,-1) < 1.3*MA(V,15)
+AND C <1.15*LLV(C,10)
+AND V>Ref(V,-1)
+)
+OR
+(C >= Ref(C,-1)
+AND C >= Ref(C,-2)
+AND C >= Ref(C,-3)
+AND C >= Ref(C,-4) 
+AND C>=MA(C,30)
+AND C>1.01*Ref(C,-1)
+AND HHV(C,5) >= HHV(C,15)
+AND Ref(C,-1)<1.04*Ref(C,-2)
+AND Ref(V,-1) < 1.3*MA(V,15)
+)
+
+;
+Cover= 
+C > 1.02*Ref(H,-1) 
+AND C>=Ref(H,-2)
+AND (V >= 1.3*MA(V,50) OR V >= 1.3*MA(V,15))  
+AND C >= (H + L)/ 2 
+AND C > O
+AND C*V>=1000000
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+
+
+AND C>=5
+
+AND C >= Ref(C,-2)
+AND C >= Ref(C,-3)
+AND C >= Ref(C,-4) 
+
+
+AND V> Ref(V,-1)
+
+;
+batday= (C*V>=5000000
+AND C>=3
+AND (C-L)/L >=0.02
+AND C<MA(C,30)
+AND MA(V,15) >=100000
+AND Ref(V,-5)>=50000
+AND Ref(V,-10)>=50000
+AND Ref(V,-15)>=50000
+AND Ref(V,-20)>=50000
+AND C*V<1000000000
+AND HHV(H,20) >1.2*C
+AND Ref(RSI(14),-1) <=35
+AND Ref(C,-1)<=1.04*Ref(C,-2)
+AND Ref(C,-2)<=1.04*Ref(C,-3)
+
+)
+
+;
+AddColumn( IIf( batday, 68,1 ), "BatDay", formatChar, 1, bkcolor =IIf (batday,colorRed, colorGreen ));
+AddColumn( IIf( Buy, 84,1 ), "T4", formatChar, 1, bkcolor =IIf (Buy,colorGreen, colorRed ));
+AddColumn( IIf( Cover, 66,1 ), "Break", formatChar, 1, bkcolor =IIf (Cover,colorCustom12, colorGreen ));
+
+
+
+AddColumn(((C - Ref(C,-1))/Ref(C,-1))*100 ,"% Tang gia ");
+AddColumn(((V - MA(V,50))/MA(V,50))*100 ,"% Dot bien KL");
+
+
+AddColumn(C,"Gia");
+AddColumn(LastValue(C),"Gia Hien Nay");
+
+AddColumn( (LastValue(C) - C ) / C * 100,"Ratio");
+
+
+
+AddColumn(RSI(14),"RSI");
+
+
+AddColumn((((C - Ref(C,-20))/Ref(C,-20))*100 +((C - Ref(C,-40))/Ref(C,-40))*100+((C - Ref(C,-60))/Ref(C,-60))*100)/3 ,"BQ tang gia 3 thang");
+AddSummaryRows(16, 1.2,5);
+SetSortColumns( -4 ) ;
+
+
+
+
+
+_SECTION_END();
+
+_SECTION_BEGIN("MA1");
+P = ParamField("Price field",-1);
+Periods = Param("Periods", 40, 2, 300, 1, 10 );
+Plot( MA( P, Periods ), _DEFAULT_NAME(), ParamColor( "Color", colorCycle ), ParamStyle("Style") ); 
+_SECTION_END();
+
+
+x = MA(C,5);
+y = MA (C,30);
+
+PlotOHLC( x, x, y, y, "", IIf(x > y,colorPaleGreen, colorPink),styleNoLabel|styleCloud );
+_SECTION_BEGIN("MA5-MA30 Crossover");
+
+_SECTION_BEGIN("SupportResistance");
+// START SCRIPT UNTUK SUPPORT / RESISTANT
+ 
+ 
+WarnaResistant = ParamColor("Warna Garis Resistant",colorRed);
+WarnaSupport = ParamColor("Warna Garis Support",colorGreen);
+R1_show = 0;
+S1_show = 0;
+ 
+SRStyle = ParamStyle("S/R Style",styleThick);
+ 
+if (ParamToggle("Garis Support&Resistance", "Tidak|Ya", 1 ))
+{
+	// RESISTANT
+	LastHighestValue = LastVisibleValue(Ref(C,-1));
+	if (LastVisibleValue(C) == C[LastValue(BarIndex())])
+		LastHighestValue = LastVisibleValue(C);
+ 
+	i = 1;
+	
+	if (LastHighestValue < HighestVisibleValue(C))
+	{
+			while (LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(C, -1), i)) < LastHighestValue)
+				i++;
+ 
+	    	R1 = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(C, -1), i));
+ 
+			R1x = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(BarIndex(), -1), i));
+			Plot(IIf(BarIndex() >= R1x,LastValue(R1),Null),"",WarnaResistant ,SRStyle);
+			PlotText(" : " + R1, BarCount + 1, LastValue(R1), WarnaResistant);
+			R1_show = 1;
+ 
+			i++;
+ 
+			if (HighestVisibleValue( C ) > R1)
+			{
+				while (LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1), Ref(C,-1), i)) <= R1)
+					i++;
+ 
+				R2 = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1), Ref(C,-1), i));
+				R2x = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(BarIndex(), -1), i));
+	
+				Plot(IIf(BarIndex() >= R2x,LastValue(R2),Null),"",WarnaResistant ,SRStyle);
+				PlotText(" : " + R2, BarCount + 11, LastValue(R2), WarnaResistant);
+				i++;
+				if (HighestVisibleValue( C )> R2)
+				{ 		
+					while (LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1), Ref(C,-1), i)) <= R2)
+						i++;
+					R3 = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1), Ref(C,-1), i));
+					R3x = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(BarIndex(), -1), i));	
+ 
+					Plot(IIf(BarIndex() >= R3x,LastValue(R3),Null),"",WarnaResistant ,SRStyle);
+					PlotText(" : " + R3, BarCount + 21, LastValue(R3), WarnaResistant);
+				}
+			}
+	}
+	else if (LastHighestValue == HighestVisibleValue(H))
+	{
+	   	R1 = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(C, -1), i));
+		R1x = LastVisibleValue(ValueWhen(C <= Ref(C,-1) AND Ref(C,-2) <= Ref(C, -1),Ref(BarIndex(), -1), i));
+		if (R1 == LastHighestValue)
+		{
+			Plot(IIf(BarIndex() >= R1x,LastValue(R1),Null),"",WarnaResistant ,SRStyle);
+			PlotText(" : " + R1, BarCount + 1, LastValue(R1), WarnaResistant);
+			R1_show = 1;
+		}
+	}
+ 
+	// SUPPORT
+	LastLowestValue = LastVisibleValue(Ref(C,-1));
+	if (LastVisibleValue(C) == C[LastValue(BarIndex())])
+		LastLowestValue = LastVisibleValue(C);
+ 
+	i = 1;
+ 
+	if (LastLowestValue > LowestVisibleValue(C))
+	{	
+			while (LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1),Ref(C, -1), i)) > LastLowestValue)
+				i++;
+ 
+			S1 = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1),Ref(C, -1), i));
+			S1x = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1),Ref(BarIndex(), -1), i));
+			Plot(IIf(BarIndex() >= S1x,LastValue(S1),Null),"",WarnaSupport ,SRStyle);
+			PlotText(" : " + S1, BarCount + 1, LastValue(S1), WarnaSupport);
+			S1_show = 1;
+			i++;
+ 
+			if (LowestVisibleValue( C ) < S1)
+			{
+				while (LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(C,-1), i)) >= S1)
+					i++;
+ 
+				S2 = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(C,-1), i));
+				S2x = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(BarIndex(),-1), i));	
+ 
+				Plot(IIf(BarIndex() >= S2x,LastValue(S2),Null),"",WarnaSupport ,SRStyle);
+				PlotText(" : " + S2, BarCount + 11, LastValue(S2), WarnaSupport);
+				i++;
+				if (LowestVisibleValue( C )< S2)
+				{ 		
+					while (LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(C,-1), i)) >= S2)
+						i++;
+					S3 = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(C,-1), i));
+					S3x = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1), Ref(BarIndex(),-1), i));
+					Plot(IIf(BarIndex() >= S3x,LastValue(S3),Null),"",WarnaSupport ,SRStyle);
+					PlotText(" : " + S3, BarCount + 21, LastValue(S3), WarnaSupport);
+				}
+			}
+	}
+	else if (LastLowestValue == LowestVisibleValue(C))
+	{
+	   	S1 = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1),Ref(C, -1), i));
+		S1x = LastVisibleValue(ValueWhen(C >= Ref(C,-1) AND Ref(C,-2) >= Ref(C, -1),Ref(BarIndex(), -1), i));
+		if (S1 == LastLowestValue)
+		{
+			Plot(IIf(BarIndex() >= S1x,LastValue(S1),Null),"",WarnaSupport ,SRStyle);
+			PlotText(" : " + S1, BarCount + 1, LastValue(S1), WarnaSupport);
+			S1_show = 1;
+		}
+	}
+ 
+	if (S1_show AND R1_show)
+	{
+		SR = Prec((1-(S1/R1))*100,2);
+	}
+}
+ 
+// END SCRIPT UNTUK SUPPORT / RESISTANT
+_SECTION_END();
